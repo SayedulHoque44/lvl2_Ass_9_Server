@@ -116,9 +116,46 @@ const updateProfile = async (id: string, payload: any) => {
 
   return userProfile;
 };
+
+const changePassword = async (
+  userId: string,
+  payload: { currentPassword: string; newPassword: string }
+) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+  });
+
+  const isCorrectPassword: boolean = await bcrypt.compare(
+    payload.currentPassword,
+    user.password
+  );
+
+  if (!isCorrectPassword) {
+    throw new Error("Password incorrect!");
+  }
+  const hashpassword = await bcrypt.hash(payload.newPassword, 10);
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hashpassword,
+    },
+  });
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  };
+};
+//
 export const userServices = {
   createUser,
   loginUser,
   getMe,
   updateProfile,
+  changePassword,
 };

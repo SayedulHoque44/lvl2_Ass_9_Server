@@ -21,6 +21,7 @@ model User {
   role      userRole @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isActive userStatus @default(ACTIVE)
 
   FoundItem FoundItem[] // npx prisma format
   LostItem  LostItem[] // npx prisma format
@@ -28,6 +29,11 @@ model User {
   Profile   Profile?
 
   @@map("users")
+}
+
+enum userStatus {
+  ACTIVE 
+  DEACTIVE
 }
 
 // model ItemCategory {

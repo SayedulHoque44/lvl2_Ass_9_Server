@@ -20,6 +20,7 @@ router.post(
 //
 router.get("/my-profile", auth(), userControllers.getMe);
 router.put("/my-profile", auth(), userControllers.updateProfile);
+router.put("/change-password", auth(), userControllers.changePassword);
 
 //
 export const userRoutes = router;

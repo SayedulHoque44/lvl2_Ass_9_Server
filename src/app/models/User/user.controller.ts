@@ -57,6 +57,22 @@ const updateProfile = catchAsync(
     });
   }
 );
+//
+const changePassword = catchAsync(
+  async (
+    req: Request & { user?: { id: string; email: string } },
+    res: Response
+  ) => {
+    const result = await userServices.changePassword(req.user!.id, req.body);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 201,
+      message: "Password Changed successfully",
+      data: result,
+    });
+  }
+);
 
 //
 export const userControllers = {
@@ -64,4 +80,5 @@ export const userControllers = {
   loginUser,
   getMe,
   updateProfile,
+  changePassword,
 };
