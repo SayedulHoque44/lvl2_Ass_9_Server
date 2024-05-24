@@ -1,4 +1,4 @@
-import { Claim } from "@prisma/client";
+import { Claim, claimStatus } from "@prisma/client";
 import prisma from "../../../utils/prisma";
 
 const createClaim = async (
@@ -71,8 +71,63 @@ const updateStatus = async (claimId: string, payload: { status: any }) => {
 
   return update;
 };
+//
+const updateClaimItemReport = async (id: string, payload: Partial<Claim>) => {
+  //
+  await prisma.claim.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+  //
+  const result = await prisma.claim.update({
+    where: {
+      id,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
+const getSingleById = async (id: string) => {
+  await prisma.claim.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const res = await prisma.claim.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  return res;
+};
+
+const deleteSingleById = async (id: string) => {
+  await prisma.claim.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const res = await prisma.claim.delete({
+    where: {
+      id,
+    },
+  });
+
+  return res;
+};
+
+//
 export const claimServices = {
   createClaim,
   updateStatus,
   getAll,
+  updateClaimItemReport,
+  getSingleById,
+  deleteSingleById,
 };

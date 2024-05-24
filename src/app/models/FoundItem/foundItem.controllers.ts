@@ -46,7 +46,55 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 //
+
+//
+const getSingleById = catchAsync(async (req, res) => {
+  const { params } = req;
+  const result = await foundItemReportServices.getSingleById(params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Found item retrive successfully",
+    data: result,
+  });
+});
+//
+const deleteSingleById = catchAsync(async (req, res) => {
+  const { params } = req;
+  const result = await foundItemReportServices.deleteSingleById(params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Found item deleted successfully",
+    data: result,
+  });
+});
+const updatefoundItemReport = catchAsync(
+  async (
+    req: Request & { user?: { id: string; email: string } },
+    res: Response
+  ) => {
+    const { user, body, params } = req;
+
+    const result = await foundItemReportServices.updatefouondItemReport(
+      params.id,
+      body
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 201,
+      message: "Found item updated successfully",
+      data: result,
+    });
+  }
+);
 export const foundItemReportControllers = {
   createFoundItemReport,
   getAll,
+  updatefoundItemReport,
+  getSingleById,
+  deleteSingleById,
 };

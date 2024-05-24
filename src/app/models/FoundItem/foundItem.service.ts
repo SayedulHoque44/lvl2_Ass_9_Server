@@ -4,15 +4,7 @@ import { paginationHelper } from "../../../utils/paginationHelper";
 import { IPaginationOptions } from "../../interface/pagination";
 import { foundItemSearchAbleFields } from "./foundItem.constant";
 
-const createFoundItemReport = async (
-  userId: string,
-  payload: {
-    categoryId: string;
-    foundItemName: string;
-    description: string;
-    location: string;
-  }
-) => {
+const createFoundItemReport = async (userId: string, payload: any) => {
   //
   // await prisma.foundItemCategory.findUniqueOrThrow({
   //   where: {
@@ -119,9 +111,67 @@ const getAll = async (params: any, options: IPaginationOptions) => {
     data: result,
   };
 };
+//
+
+//
+const updatefouondItemReport = async (
+  id: string,
+  payload: Partial<FoundItem>
+) => {
+  //
+  await prisma.foundItem.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+  //
+  const result = await prisma.lostItem.update({
+    where: {
+      id,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
+const getSingleById = async (id: string) => {
+  await prisma.foundItem.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const res = await prisma.foundItem.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  return res;
+};
+
+const deleteSingleById = async (id: string) => {
+  await prisma.foundItem.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const res = await prisma.foundItem.delete({
+    where: {
+      id,
+    },
+  });
+
+  return res;
+};
 
 //
 export const foundItemReportServices = {
   createFoundItemReport,
   getAll,
+  getSingleById,
+  deleteSingleById,
+  updatefouondItemReport,
 };

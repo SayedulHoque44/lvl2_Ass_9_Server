@@ -68,6 +68,7 @@ const loginUser = async (payload: TLoginUser) => {
     {
       id: user.id,
       email: user.email,
+      role: user.role,
     },
     config.access_Secrect as Secret,
     config.access_Secrect_Exp_in as string
@@ -77,7 +78,7 @@ const loginUser = async (payload: TLoginUser) => {
     id: user.id,
     name: user.name,
     email: user.email,
-    token: accessToken,
+    accessToken,
   };
 };
 //

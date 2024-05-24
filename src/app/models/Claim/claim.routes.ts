@@ -21,6 +21,10 @@ router.put(
   claimControllers.updateStatus
 );
 //
-
+router.put("/:id", auth(), claimControllers.updateClaimItemReport);
+//
+router.get("/:id", claimControllers.getSingleById);
+//
+router.delete("/:id", claimControllers.deleteSingleById);
 //
 export const claimRoutes = router;
