@@ -125,7 +125,7 @@ const updatefouondItemReport = async (
     },
   });
   //
-  const result = await prisma.lostItem.update({
+  const result = await prisma.foundItem.update({
     where: {
       id,
     },
@@ -145,6 +145,9 @@ const getSingleById = async (id: string) => {
   const res = await prisma.foundItem.findFirst({
     where: {
       id,
+    },
+    include: {
+      Claim: true,
     },
   });
 

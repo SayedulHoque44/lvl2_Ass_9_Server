@@ -1,7 +1,7 @@
 import express from "express";
 import { userRoutes } from "../app/models/User/user.routes";
 import { foundItemRoutes } from "../app/models/FoundItem/foundItem.routes";
-import { foundItemCategoryRoutes } from "../app/models/FoundItemCategory/foundItemCategory.controllers.routes";
+
 import { claimRoutes } from "../app/models/Claim/claim.routes";
 import { lostItemRoutes } from "../app/models/LostItem/lostItem.routes";
 
@@ -11,10 +11,6 @@ const moduleRoutes = [
   {
     path: "/",
     route: userRoutes,
-  },
-  {
-    path: "/found-item-categories",
-    route: foundItemCategoryRoutes,
   },
   {
     path: "/found-items",

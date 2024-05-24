@@ -14,6 +14,10 @@ router.post(
 );
 router.get("/", foundItemReportControllers.getAll);
 //
-
+router.put("/:id", auth(), foundItemReportControllers.updatefoundItemReport);
+//
+router.get("/:id", foundItemReportControllers.getSingleById);
+//
+router.delete("/:id", foundItemReportControllers.deleteSingleById);
 //
 export const foundItemRoutes = router;
