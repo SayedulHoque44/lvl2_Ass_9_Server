@@ -5,12 +5,6 @@ import router from "./routes";
 import { userControllers } from "./app/models/User/user.controller";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
 import notFound from "./app/middleware/notFoundRoute";
-import validateRequest from "./app/middleware/validateRequest";
-import { userValidations } from "./app/models/User/user.validation";
-import createFoundItemCategoryValidaion from "./app/models/FoundItemCategory/foundItemCategory.validation";
-import { foundItemCategoryControllers } from "./app/models/FoundItemCategory/foundItemCategory.controllers";
-import auth from "./app/middleware/auth";
-import { userRoutes } from "./app/models/User/user.routes";
 
 const app = express();
 const prisma = new PrismaClient();

@@ -161,13 +161,23 @@ const deleteSingleById = async (id: string) => {
     },
   });
 
-  const res = await prisma.foundItem.delete({
-    where: {
-      id,
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    await prisma.claim.deleteMany({
+      where: {
+        foundItemId: id,
+      },
+    });
+
+    const foundItem = await prisma.foundItem.delete({
+      where: {
+        id,
+      },
+    });
+
+    return foundItem;
   });
 
-  return res;
+  return result;
 };
 
 //
