@@ -5,6 +5,7 @@ export const foundItemSearchAbleFields: string[] = [
 ]; // only for search term
 
 export const foundItemFilterableFields: string[] = [
-  "foundItemName",
+  "name",
+  "userId",
   "searchTerm",
 ]; // for all filtering

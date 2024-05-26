@@ -1,5 +1,7 @@
-import { Claim, claimStatus } from "@prisma/client";
+import { Claim, Prisma, claimStatus } from "@prisma/client";
 import prisma from "../../../utils/prisma";
+import { IPaginationOptions } from "../../interface/pagination";
+import { paginationHelper } from "../../../utils/paginationHelper";
 
 const createClaim = async (
   userId: string,
@@ -31,45 +33,124 @@ const createClaim = async (
 };
 //
 
-const getAll = async () => {
+const getAll = async (params: any, options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
+
+  const andCondions: Prisma.ClaimWhereInput[] = [];
+
+  if (params.searchTerm) {
+    andCondions.push({
+      OR: ["distinguishingFeatures"].map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andCondions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+
+  const whereConditons: Prisma.ClaimWhereInput =
+    andCondions.length > 0 ? { AND: andCondions } : {};
+
+  //
   const result = await prisma.claim.findMany({
-    include: {
-      foundItem: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              createdAt: true,
-              updatedAt: true,
-            },
+    where: whereConditons,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
           },
+    //
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          createdAt: true,
+          updatedAt: true,
         },
       },
+      //
+      foundItem: true,
     },
   });
 
-  return result;
+  const total = await prisma.foundItem.count();
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 //
-const updateStatus = async (claimId: string, payload: { status: any }) => {
-  await prisma.claim.findUniqueOrThrow({
+const updateStatus = async (
+  claimId: string,
+  payload: { status: claimStatus }
+) => {
+  const claim = await prisma.claim.findUniqueOrThrow({
     where: {
       id: claimId,
     },
   });
 
-  const update = await prisma.claim.update({
-    where: {
-      id: claimId,
-    },
-    data: {
-      status: payload.status,
-    },
-  });
+  let result;
+  //
+  if (payload.status === claimStatus.APPROVED) {
+    result = await prisma.$transaction(async (tx) => {
+      //
+      await tx.claim.updateMany({
+        where: {
+          foundItemId: claim.foundItemId,
+        },
+        data: {
+          status: claimStatus.REJECTED,
+        },
+      });
+      //
+      const updatedClaim = await tx.claim.update({
+        where: {
+          id: claimId,
+        },
+        data: {
+          status: payload.status,
+        },
+      });
+      return updatedClaim;
+    });
+    //
+  } else {
+    result = await prisma.claim.update({
+      where: {
+        id: claimId,
+      },
+      data: {
+        status: payload.status,
+      },
+    });
+  }
 
-  return update;
+  return result;
 };
 //
 const updateClaimItemReport = async (id: string, payload: Partial<Claim>) => {

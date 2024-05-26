@@ -9,4 +9,5 @@ export const lostItemFilterableFields: string[] = [
   "name",
   "category",
   "searchTerm",
+  "userId",
 ]; // for all filtering

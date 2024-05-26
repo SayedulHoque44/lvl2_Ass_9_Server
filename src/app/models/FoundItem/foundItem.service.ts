@@ -148,6 +148,7 @@ const getSingleById = async (id: string) => {
     },
     include: {
       Claim: true,
+      user: true,
     },
   });
 

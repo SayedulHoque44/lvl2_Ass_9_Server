@@ -22,6 +22,8 @@ router.put(
 );
 //
 router.put("/:id", auth(), claimControllers.updateClaimItemReport);
+
+router.put("/claim-status/:id", auth(), claimControllers.updateStatus);
 //
 router.get("/:id", claimControllers.getSingleById);
 //
