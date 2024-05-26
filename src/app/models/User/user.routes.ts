@@ -18,8 +18,18 @@ router.post(
   userControllers.loginUser
 );
 //
+router.get("/user", auth(), userControllers.getAll);
+router.put(
+  "/user-status/:id",
+  auth(),
+  validateRequest(userValidations.userStatus),
+  userControllers.updateStatus
+);
+
 router.get("/my-profile", auth(), userControllers.getMe);
+router.get("/user-meta", auth(), userControllers.userMeta);
 router.put("/my-profile", auth(), userControllers.updateProfile);
+
 router.put("/change-password", auth(), userControllers.changePassword);
 
 //

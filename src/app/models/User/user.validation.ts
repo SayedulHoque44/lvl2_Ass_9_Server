@@ -52,9 +52,18 @@ const updateProfile = z.object({
   }),
 });
 
+const userStatus = z.object({
+  body: z.object({
+    isActive: z.string({
+      required_error: "status is Required!",
+    }),
+  }),
+});
+
 //
 export const userValidations = {
   createUser,
   loginUser,
   updateProfile,
+  userStatus,
 };

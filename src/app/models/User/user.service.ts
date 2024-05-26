@@ -1,10 +1,19 @@
-import { Profile, User } from "@prisma/client";
+import {
+  Prisma,
+  Profile,
+  User,
+  claimStatus,
+  userRole,
+  userStatus,
+} from "@prisma/client";
 import prisma from "../../../utils/prisma";
 import { TCreateUser, TLoginUser } from "./user.interface";
 import bcrypt from "bcrypt";
 import { jwtHelpers } from "../../../utils/jwtHelpers";
 import config from "../../../config";
 import { Secret } from "jsonwebtoken";
+import { IPaginationOptions } from "../../interface/pagination";
+import { paginationHelper } from "../../../utils/paginationHelper";
 
 const createUser = async (payload: TCreateUser) => {
   const { profile, ...userData } = payload;
@@ -83,24 +92,19 @@ const loginUser = async (payload: TLoginUser) => {
 };
 //
 const getMe = async (userId: string) => {
-  const userProfile = await prisma.profile.findUniqueOrThrow({
+  const userProfile = await prisma.user.findUniqueOrThrow({
     where: {
-      userId,
+      id: userId,
     },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      },
-    },
+    // include: {
+    //   FoundItem: true,
+    //   LostItem: true,
+    //   Claim: true,
+    // },
   });
   return userProfile;
 };
+//
 const updateProfile = async (id: string, payload: any) => {
   await prisma.user.findUniqueOrThrow({
     where: {
@@ -153,10 +157,156 @@ const changePassword = async (
   };
 };
 //
+
+const getAll = async (params: any, options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
+
+  const andCondions: Prisma.UserWhereInput[] = [];
+
+  if (params.searchTerm) {
+    andCondions.push({
+      OR: ["name", "email"].map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andCondions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+
+  const whereConditons: Prisma.UserWhereInput =
+    andCondions.length > 0 ? { AND: andCondions } : {};
+
+  //
+  const result = await prisma.user.findMany({
+    where: whereConditons,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+    //
+    include: {
+      FoundItem: true,
+      LostItem: true,
+      Claim: true,
+    },
+  });
+
+  const total = await prisma.user.count();
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+const updateStatus = async (
+  userId: string,
+  payload: { isActive: userStatus }
+) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+  });
+
+  const update = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: payload,
+  });
+};
+
+const userMeta = async (userId: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (user.role === userRole.ADMIN) {
+    const totalUser = await prisma.user.count();
+    const totolFoundItems = await prisma.foundItem.count();
+    const totolLostItems = await prisma.lostItem.count();
+    const totolClaimRequest = await prisma.claim.count({
+      where: { status: claimStatus.PENDING },
+    });
+    const totolClaimedReport = await prisma.claim.count({
+      where: { status: claimStatus.APPROVED },
+    });
+
+    return {
+      totalUser,
+      totolFoundItems,
+      totolLostItems,
+      totolClaimRequest,
+      totolClaimedReport,
+    };
+  } else {
+    //
+    const totalFoundItems = await prisma.foundItem.count({
+      where: {
+        userId,
+      },
+    });
+    const totalLostItems = await prisma.lostItem.count({
+      where: {
+        userId,
+      },
+    });
+
+    const totalClaimRequest = await prisma.claim.count({
+      where: {
+        userId,
+      },
+    });
+
+    const totalClaimedReport = await prisma.claim.count({
+      where: {
+        userId,
+        status: claimStatus.APPROVED,
+      },
+    });
+
+    return {
+      totalFoundItems,
+      totalLostItems,
+      totalClaimRequest,
+      totalClaimedReport,
+    };
+    //
+  }
+};
+
 export const userServices = {
   createUser,
   loginUser,
   getMe,
   updateProfile,
   changePassword,
+  getAll,
+  updateStatus,
+  userMeta,
 };
