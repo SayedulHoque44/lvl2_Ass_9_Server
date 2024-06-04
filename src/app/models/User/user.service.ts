@@ -96,11 +96,15 @@ const getMe = async (userId: string) => {
     where: {
       id: userId,
     },
-    // include: {
-    //   FoundItem: true,
-    //   LostItem: true,
-    //   Claim: true,
-    // },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+      isActive: true,
+    },
   });
   return userProfile;
 };
@@ -246,6 +250,7 @@ const userMeta = async (userId: string) => {
     },
   });
 
+  // if role admin
   if (user.role === userRole.ADMIN) {
     const totalUser = await prisma.user.count();
     const totolFoundItems = await prisma.foundItem.count();
@@ -265,7 +270,7 @@ const userMeta = async (userId: string) => {
       totolClaimedReport,
     };
   } else {
-    //
+    //if role user
     const totalFoundItems = await prisma.foundItem.count({
       where: {
         userId,

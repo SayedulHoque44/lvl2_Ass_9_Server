@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "userStatus" AS ENUM ('ACTIVE', 'DEACTIVE');
+
+-- CreateEnum
 CREATE TYPE "claimStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
 -- CreateEnum
@@ -13,6 +16,7 @@ CREATE TABLE "users" (
     "role" "userRole" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "isActive" "userStatus" NOT NULL DEFAULT 'ACTIVE',
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -38,7 +42,7 @@ CREATE TABLE "lostItems" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "category" TEXT NOT NULL,
-    "found" BOOLEAN NOT NULL DEFAULT true,
+    "founded" BOOLEAN NOT NULL DEFAULT false,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "DateAndlocation" TEXT,

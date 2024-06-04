@@ -88,11 +88,15 @@ const getAll = async (params: any, options: IPaginationOptions) => {
         },
       },
       //
-      foundItem: true,
+      foundItem: {
+        include: {
+          user: true,
+        },
+      },
     },
   });
 
-  const total = await prisma.foundItem.count();
+  const total = await prisma.claim.count();
 
   return {
     meta: {

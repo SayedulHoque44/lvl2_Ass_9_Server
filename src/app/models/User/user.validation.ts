@@ -55,7 +55,7 @@ const updateProfile = z.object({
 const userStatus = z.object({
   body: z.object({
     isActive: z.string({
-      required_error: "status is Required!",
+      required_error: "isActive is Required!",
     }),
   }),
 });

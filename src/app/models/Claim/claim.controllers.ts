@@ -23,7 +23,7 @@ const createClaim = catchAsync(
 );
 //
 const getAll = catchAsync(async (req, res) => {
-  const filters = pick(req.query, ["lostDate,userId"]);
+  const filters = pick(req.query, ["lostDate", "userId", "searchTerm"]);
   const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
   const result = await claimServices.getAll(filters, options);
 

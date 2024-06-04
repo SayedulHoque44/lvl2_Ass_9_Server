@@ -1,6 +1,6 @@
 export const lostItemSearchAbleFields: string[] = [
   "name",
-  "location",
+  "DateAndlocation",
   "description",
   "category",
 ]; // only for search term
